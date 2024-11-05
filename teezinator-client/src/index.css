@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.glow {
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8),
+    0 0 10px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes glitter {
+  0%,
+  100% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+.glitter {
+  background: linear-gradient(
+    90deg,
+    #ff6ec4,
+    #7873f5,
+    #7bdff2,
+    #b2f7ef,
+    #f7d6e0,
+    #fcd864,
+    #ffb056
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glitter 1.5s infinite;
+}
+
+@keyframes card-glitter {
+  0%,
+  100% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+.card-glitter {
+  position: relative;
+  background: linear-gradient(
+    100deg,
+    #7873f5,
+    #ff6ec4,
+    #7bdff2,
+    #b2f7ef,
+    #f7d6e0,
+    #fcd864,
+    #ff5656
+  );
+  background-size: 150% 150%;
+  animation: glitter 8s infinite;
+  overflow: hidden;
+}
+
+.card-glitter::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
