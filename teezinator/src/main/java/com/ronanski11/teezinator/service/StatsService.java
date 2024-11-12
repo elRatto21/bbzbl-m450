@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -383,9 +384,44 @@ public class StatsService {
 		return sortedStats;
 
 	}
-	
+
 	public List<ConsumedTea> getLiveFeed(int pageNumber) {
 		return consumedTeaRepository.findLatestTeasPaging(pageNumber);
+	}
+
+	/*
+	 * Test driven development
+	 * 
+	 * Die Methode soll die Stats eines Users in einem bestimmten Zeitraum
+	 * zurückgeben
+	 */
+	public Map<String, Integer> getUserStatsBetweenDates(String username, LocalDateTime date1, LocalDateTime date2) {
+		if (username == null || username.isEmpty()) {
+			throw new IllegalArgumentException("Username darf nicht null oder leer sein");
+		}
+		if (date1 == null || date2 == null) {
+			throw new IllegalArgumentException("Beide Datumswerte müssen gesetzt sein");
+		}
+		if (date1.isAfter(date2)) {
+			throw new IllegalArgumentException("Das Startdatum darf nicht nach dem Enddatum liegen");
+		}
+
+		List<ConsumedTea> consumedTeas = consumedTeaRepository.findByUser(username);
+		if (consumedTeas.isEmpty()) {
+			throw new NoSuchElementException("Der Benutzer existiert nicht");
+		}
+
+		Map<String, Integer> stats = consumedTeas.stream().filter(
+				tea -> 
+					tea
+						.getTime()
+						.isAfter(date1.minusMinutes(1)) && 
+					tea
+						.getTime()
+						.isBefore(date2.plusMinutes(1)))
+				.collect(Collectors.groupingBy(tea -> tea.getTea().getId(), Collectors.summingInt(tea -> 1)));
+
+		return stats;
 	}
 
 }
