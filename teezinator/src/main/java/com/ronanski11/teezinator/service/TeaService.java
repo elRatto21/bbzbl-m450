@@ -1,15 +1,11 @@
 package com.ronanski11.teezinator.service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.ronanski11.teezinator.dto.ConsumedTeaDto;
 import com.ronanski11.teezinator.model.ConsumedTea;
 import com.ronanski11.teezinator.model.Image;
