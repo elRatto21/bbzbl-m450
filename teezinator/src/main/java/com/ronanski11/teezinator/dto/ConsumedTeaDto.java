@@ -1,7 +1,5 @@
 package com.ronanski11.teezinator.dto;
 
-import java.time.LocalDateTime;
-
 import com.ronanski11.teezinator.model.EntryType;
 
 import lombok.Data;
