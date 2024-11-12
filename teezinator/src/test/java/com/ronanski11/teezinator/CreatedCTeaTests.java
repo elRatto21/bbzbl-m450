@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.ronanski11.teezinator.dto.ConsumedTeaDto;
 import com.ronanski11.teezinator.model.ConsumedTea;
@@ -30,148 +31,173 @@ import com.ronanski11.teezinator.repository.ImageRepository;
 import com.ronanski11.teezinator.repository.TeaRepository;
 import com.ronanski11.teezinator.service.TeaService;
 
+@ActiveProfiles("test")
 @SpringBootTest
 public class CreatedCTeaTests {
-	
+
 	@Mock
-    private TeaRepository teaRepository;
+	private TeaRepository teaRepository;
 
-    @Mock
-    private ImageRepository imageRepository;
+	@Mock
+	private ImageRepository imageRepository;
 
-    @Mock
-    private ConsumedTeaRepository consumedTeaRepository;
+	@Mock
+	private ConsumedTeaRepository consumedTeaRepository;
 
-    @InjectMocks
-    private TeaService teaService;
-    
-    @BeforeEach
-    public void setUp() {
-    	MockitoAnnotations.openMocks(this);
-    }
-    
-    @Test
-    public void testAddTea_AllDataValid() {
-        ConsumedTeaDto coDto = new ConsumedTeaDto();
-        coDto.setTeaId("tea123");
-        coDto.setTimeOfConsumption("2024-11-12T12:30:00+00:00");
-        coDto.setImage("image123");
-        coDto.setImagePreview("previewImage");
-        coDto.setSugar(true);
-        coDto.setType(EntryType.REGULAR);
+	@InjectMocks
+	private TeaService teaService;
 
-        Tea tea = new Tea();
-        when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+	@BeforeEach
+	public void setUp() {
+		MockitoAnnotations.openMocks(this);
+	}
 
-        ConsumedTea consumedTea = new ConsumedTea();
-        consumedTea.setId("consumedTeaId");
-        when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+	@Test
+	public void testAddTea_AllDataValid() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("tea123");
+		coDto.setTimeOfConsumption("2024-11-12T12:30:00+00:00");
+		coDto.setImage("image123");
+		coDto.setImagePreview("previewImage");
+		coDto.setSugar(true);
+		coDto.setType(EntryType.REGULAR);
 
-        ConsumedTea result = teaService.addTea(coDto, "testUser");
+		Tea tea = new Tea();
+		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
-        assertNotNull(result);
-        assertEquals("testUser", result.getUser());
-        assertEquals(true, result.isSugar());
-        assertEquals(tea, result.getTea());
-        assertEquals("image123", result.getImage());
-        assertEquals("previewImage", result.getPreview());
-        assertEquals(EntryType.REGULAR, result.getType());
-        assertEquals(LocalDateTime.parse("2024-11-12T12:30:00"), result.getTime());
-    }
+		ConsumedTea consumedTea = new ConsumedTea();
+		consumedTea.setId("consumedTeaId");
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
 
-    @Test
-    public void testAddTea_TeaNotFound() {
-        ConsumedTeaDto coDto = new ConsumedTeaDto();
-        coDto.setTeaId("invalidTeaId");
+		ConsumedTea result = teaService.addTea(coDto, "testUser");
 
-        when(teaRepository.findById("invalidTeaId")).thenReturn(Optional.empty());
+		assertNotNull(result);
+		assertEquals("testUser", result.getUser());
+		assertEquals(true, result.isSugar());
+		assertEquals(tea, result.getTea());
+		assertEquals("image123", result.getImage());
+		assertEquals("previewImage", result.getPreview());
+		assertEquals(EntryType.REGULAR, result.getType());
+		assertEquals(LocalDateTime.parse("2024-11-12T12:30:00"), result.getTime());
+	}
 
-        assertThrows(NoSuchElementException.class, () -> teaService.addTea(coDto, "testUser"));
-    }
-    
-    @Test
-    public void testAddTea_TimeIsNull() {
-        ConsumedTeaDto coDto = new ConsumedTeaDto();
-        coDto.setTeaId("tea123");
+	@Test
+	public void testAddTea_TeaNotFound() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("invalidTeaId");
 
-        Tea tea = new Tea();
-        when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+		when(teaRepository.findById("invalidTeaId")).thenReturn(Optional.empty());
 
-        ConsumedTea consumedTea = new ConsumedTea();
-        when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		assertThrows(NoSuchElementException.class, () -> teaService.addTea(coDto, "testUser"));
+	}
 
-        ConsumedTea result = teaService.addTea(coDto, "testUser");
+	@Test
+	public void testAddTea_TimeIsNull() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("tea123");
 
-        assertNotNull(result.getTime());
-    }
+		Tea tea = new Tea();
+		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
-    @Test
-    public void testAddTea_ImageIsNull() {
-        ConsumedTeaDto coDto = new ConsumedTeaDto();
-        coDto.setTeaId("tea123");
-        coDto.setImage(null);
-        coDto.setImagePreview(null);
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Tea tea = new Tea();
-        when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+		ConsumedTea result = teaService.addTea(coDto, "testUser");
 
-        ConsumedTea consumedTea = new ConsumedTea();
-        when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		assertNotNull(result.getTime());
+	}
 
-        ConsumedTea result = teaService.addTea(coDto, "testUser");
+	@Test
+	public void testAddTea_ImageIsNull() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("tea123");
+		coDto.setImage(null);
+		coDto.setImagePreview(null);
 
-        assertNull(result.getImage());
-        assertNull(result.getPreview());
-    }
+		Tea tea = new Tea();
+		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
-    @Test
-    public void testAddTea_InvalidTimeFormat() {
-        ConsumedTeaDto coDto = new ConsumedTeaDto();
-        coDto.setTeaId("tea123");
-        coDto.setTimeOfConsumption("invalid-time-format");
+		ConsumedTea consumedTea = new ConsumedTea();
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
 
-        Tea tea = new Tea();
-        when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+		ConsumedTea result = teaService.addTea(coDto, "testUser");
 
-        assertThrows(DateTimeParseException.class, () -> teaService.addTea(coDto, "testUser"));
-    }
-    
-    @Test
-    public void testAddTea_UsernameIsNull() {
-        ConsumedTeaDto coDto = new ConsumedTeaDto();
-        coDto.setTeaId("tea123");
+		assertNull(result.getImage());
+		assertNull(result.getPreview());
+	}
 
-        Tea tea = new Tea();
-        when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+	@Test
+	public void testAddTea_InvalidTimeFormat() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("tea123");
+		coDto.setTimeOfConsumption("invalid-time-format");
 
-        ConsumedTea consumedTea = new ConsumedTea();
-        when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		Tea tea = new Tea();
+		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
-        ConsumedTea result = teaService.addTea(coDto, null);
+		assertThrows(DateTimeParseException.class, () -> teaService.addTea(coDto, "testUser"));
+	}
 
-        assertNull(result.getUser());
-    }
+	@Test
+	public void testAddTea_UsernameIsNull() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("tea123");
 
-    @Test
-    public void testAddTea_SugarBoundaryValues() {
-        ConsumedTeaDto coDto = new ConsumedTeaDto();
-        coDto.setTeaId("tea123");
-        coDto.setSugar(true);
+		Tea tea = new Tea();
+		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
-        Tea tea = new Tea();
-        when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+		ConsumedTea consumedTea = new ConsumedTea();
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
 
-        ConsumedTea consumedTea = new ConsumedTea();
-        when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		ConsumedTea result = teaService.addTea(coDto, null);
 
-        ConsumedTea result = teaService.addTea(coDto, "testUser");
+		assertNull(result.getUser());
+	}
 
-        assertTrue(result.isSugar());
+	@Test
+	public void testAddTea_SugarBoundaryValues() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("tea123");
+		coDto.setSugar(true);
 
-        coDto.setSugar(false);
-        result = teaService.addTea(coDto, "testUser");
+		Tea tea = new Tea();
+		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
-        assertFalse(result.isSugar());
-    }
+		ConsumedTea consumedTea = new ConsumedTea();
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+
+		ConsumedTea result = teaService.addTea(coDto, "testUser");
+
+		assertTrue(result.isSugar());
+
+		coDto.setSugar(false);
+		result = teaService.addTea(coDto, "testUser");
+
+		assertFalse(result.isSugar());
+	}
+
+	@Test
+	public void testAddTea_TeaIdIsNull() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId(null);
+
+		assertThrows(NoSuchElementException.class, () -> teaService.addTea(coDto, "testUser"));
+	}
+
+	@Test
+	public void testAddTea_EntryTypeIsNull() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("tea123");
+		coDto.setType(null);
+
+		Tea tea = new Tea();
+		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+
+		ConsumedTea consumedTea = new ConsumedTea();
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+
+		ConsumedTea result = teaService.addTea(coDto, "testUser");
+
+		assertNull(result.getType());
+	}
 
 }
