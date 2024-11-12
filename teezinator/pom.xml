@@ -80,6 +80,20 @@
 					</excludes>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.7.0</version>
+                <configuration>
+                    <testPlugin>junit5</testPlugin>
+                    <targetClasses>
+                        <param>com.ronanski11.teezinator.service.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.ronanski11.teezinator.*</param>
+                    </targetTests>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 

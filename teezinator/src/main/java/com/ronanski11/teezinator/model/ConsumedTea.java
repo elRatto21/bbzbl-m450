@@ -7,10 +7,16 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Unwrapped.Nullable;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Document
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConsumedTea {
 	
 	@Id
