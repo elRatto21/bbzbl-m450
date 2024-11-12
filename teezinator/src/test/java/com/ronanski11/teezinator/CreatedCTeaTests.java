@@ -31,6 +31,29 @@ import com.ronanski11.teezinator.repository.ImageRepository;
 import com.ronanski11.teezinator.repository.TeaRepository;
 import com.ronanski11.teezinator.service.TeaService;
 
+/*
+ * Following cases are tested:
+ * 
+ * Validate whole object
+ * 
+ * Tea id is null
+ * Tea id doesnt exist
+ * Tea id exists
+ * 
+ * Invalid time format
+ * Time is null
+ * 
+ * Entry type null
+ * 
+ * Username null
+ * 
+ * Sugar values
+ * Default sugar value
+ * 
+ * Image is null
+ * 
+ */
+
 @ActiveProfiles("test")
 @SpringBootTest
 public class CreatedCTeaTests {
@@ -55,10 +78,8 @@ public class CreatedCTeaTests {
 	@Test
 	public void testAddTea_AllDataValid() {
 		ConsumedTeaDto coDto = new ConsumedTeaDto();
-		coDto.setTeaId("tea123");
+		coDto.setTeaId("1");
 		coDto.setTimeOfConsumption("2024-11-12T12:30:00+00:00");
-		coDto.setImage("image123");
-		coDto.setImagePreview("previewImage");
 		coDto.setSugar(true);
 		coDto.setType(EntryType.REGULAR);
 
@@ -66,17 +87,18 @@ public class CreatedCTeaTests {
 		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
 		ConsumedTea consumedTea = new ConsumedTea();
-		consumedTea.setId("consumedTeaId");
-		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		consumedTea.setId("1");
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		ConsumedTea result = teaService.addTea(coDto, "testUser");
 
 		assertNotNull(result);
+		assertEquals("1", result.getId());
 		assertEquals("testUser", result.getUser());
 		assertEquals(true, result.isSugar());
 		assertEquals(tea, result.getTea());
-		assertEquals("image123", result.getImage());
-		assertEquals("previewImage", result.getPreview());
+		assertNull(result.getImage());
+		assertNull(result.getPreview());
 		assertEquals(EntryType.REGULAR, result.getType());
 		assertEquals(LocalDateTime.parse("2024-11-12T12:30:00"), result.getTime());
 	}
@@ -154,16 +176,15 @@ public class CreatedCTeaTests {
 	}
 
 	@Test
-	public void testAddTea_SugarBoundaryValues() {
+	public void testAddTea_SugarValue() {
 		ConsumedTeaDto coDto = new ConsumedTeaDto();
-		coDto.setTeaId("tea123");
+		coDto.setTeaId("1");
 		coDto.setSugar(true);
 
 		Tea tea = new Tea();
-		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
+		when(teaRepository.findById("1")).thenReturn(Optional.of(tea));
 
-		ConsumedTea consumedTea = new ConsumedTea();
-		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		ConsumedTea result = teaService.addTea(coDto, "testUser");
 
@@ -171,6 +192,21 @@ public class CreatedCTeaTests {
 
 		coDto.setSugar(false);
 		result = teaService.addTea(coDto, "testUser");
+
+		assertFalse(result.isSugar());
+	}
+
+	@Test
+	public void testAddTea_DefaultSugarValue() {
+		ConsumedTeaDto coDto = new ConsumedTeaDto();
+		coDto.setTeaId("1");
+
+		Tea tea = new Tea();
+		when(teaRepository.findById("1")).thenReturn(Optional.of(tea));
+
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		ConsumedTea result = teaService.addTea(coDto, "testuser");
 
 		assertFalse(result.isSugar());
 	}
