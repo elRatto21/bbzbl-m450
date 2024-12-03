@@ -78,7 +78,7 @@ public class CreatedCTeaTests {
 	@Test
 	public void testAddTea_AllDataValid() {
 		ConsumedTeaDto coDto = new ConsumedTeaDto();
-		coDto.setTeaId("1");
+		coDto.setTeaId("tea123");
 		coDto.setTimeOfConsumption("2024-11-12T12:30:00+00:00");
 		coDto.setSugar(true);
 		coDto.setType(EntryType.REGULAR);
@@ -93,7 +93,7 @@ public class CreatedCTeaTests {
 		ConsumedTea result = teaService.addTea(coDto, "testUser");
 
 		assertNotNull(result);
-		assertEquals("1", result.getId());
+		assertEquals("tea123", result.getTea().getId());
 		assertEquals("testUser", result.getUser());
 		assertEquals(true, result.isSugar());
 		assertEquals(tea, result.getTea());
@@ -168,7 +168,7 @@ public class CreatedCTeaTests {
 		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
 		ConsumedTea consumedTea = new ConsumedTea();
-		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		ConsumedTea result = teaService.addTea(coDto, null);
 
@@ -229,7 +229,7 @@ public class CreatedCTeaTests {
 		when(teaRepository.findById("tea123")).thenReturn(Optional.of(tea));
 
 		ConsumedTea consumedTea = new ConsumedTea();
-		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenReturn(consumedTea);
+		when(consumedTeaRepository.save(any(ConsumedTea.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		ConsumedTea result = teaService.addTea(coDto, "testUser");
 
